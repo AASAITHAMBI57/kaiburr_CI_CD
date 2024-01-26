@@ -56,28 +56,26 @@ pipeline {
             steps{
                 script{
                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){ 
-                       sh "docker build -t kaiburr_ci_cd  ."
-                       sh "docker tag kaiburr_ci_cd aasaithambi5/kaiburr_ci_cd:latest "
-                       sh "docker push aasaithambi5/kaiburr_ci_cd:latest "
-                       sh "docker push aasaithambi5/kaiburr_ci_cd:${BUILD_NUMBER} "
+                       sh "docker build -t kaiburr ."
+                       sh "docker tag kaiburr aasaithambi5/kaiburr:latest "
+                       sh "docker push aasaithambi5/kaiburr:latest "
+                       sh "docker push aasaithambi5/kaiburr:${BUILD_NUMBER} "
                     }
                 }
             }
         }
 
-        stage("Trivy Image Scan") {
-            steps {
-                script {
-	            sh ('docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image aasaithambi5/kaiburr_ci_cd:latest --no-progress --scanners vuln  --exit-code 0 --severity HIGH,CRITICAL --format table > trivyimage.txt')
-                }
+        stage("TRIVY IMAGE SCAN"){
+            steps{
+                sh "trivy image aasaithambi5/kaiburr:latest > trivy.txt" 
             }
         }
 
         stage ('Cleanup Artifacts') {
             steps {
                 script {
-                    sh "docker rmi aasaithambi5/kaiburr_ci_cd:latest "
-                    sh "docker rmi aasaithambi5/kaiburr_ci_cd:${BUILD_NUMBER} "
+                    sh "docker rmi aasaithambi5/kaiburr:latest "
+                    sh "docker rmi aasaithambi5/kaiburr:${BUILD_NUMBER} "
                 }
             }
         }
