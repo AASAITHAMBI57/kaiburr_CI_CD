@@ -8,11 +8,6 @@ pipeline {
 
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
-        APP_NAME = "kaiburr_ci_cd"
-        DOCKER_USER = "aasaithambi5"
-        DOCKER_PASS = 'docker'
-        IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
-        IMAGE_TAG = "${APP_NAME}:${BUILD_NUMBER}"
     }
 
     stages {
@@ -57,15 +52,14 @@ pipeline {
             }
         }
 
-        stage("Build & Push Docker Image") {
-             steps {
-                script {
-                    docker.withRegistry('',DOCKER_PASS) {
-                        docker_image = docker.build "${IMAGE_NAME}"
-                    }
-                    docker.withRegistry('',DOCKER_PASS) {
-                        docker_image.push("${IMAGE_TAG}")
-                        docker_image.push('latest')
+        stage("Docker Build & Push"){
+            steps{
+                script{
+                   withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){ 
+                       sh "docker build -t kaiburr_ci_cd  ."
+                       sh "docker tag kaiburr_ci_cd aasaithambi5/kaiburr_ci_cd:latest "
+                       sh "docker push aasaithambi5/kaiburr_ci_cd:latest "
+                       sh "docker push aasaithambi5/kaiburr_ci_cd:${BUILD_NUMBER} "
                     }
                 }
             }
@@ -82,8 +76,8 @@ pipeline {
         stage ('Cleanup Artifacts') {
             steps {
                 script {
-                    sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
-                    sh "docker rmi ${IMAGE_NAME}:latest"
+                    sh "docker rmi aasaithambi5/kaiburr_ci_cd:latest "
+                    sh "docker rmi aasaithambi5/kaiburr_ci_cd:${BUILD_NUMBER} "
                 }
             }
         }
