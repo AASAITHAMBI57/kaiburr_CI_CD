@@ -14,5 +14,22 @@ pipeline {
                 git 'https://github.com/AASAITHAMBI57/kaiburr_CI_CD.git'
             }
         }
+
+        stage("Sonarqube Analysis "){
+            steps{
+                withSonarQubeEnv('sonarqube') {
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Kaiburr \
+                    -Dsonar.projectKey=. '''
+                }
+            }
+        }
+
+        stage("quality gate"){
+           steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonarqube' 
+                }
+            } 
+        }
     }
 }
