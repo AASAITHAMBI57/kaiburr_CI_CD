@@ -7,7 +7,12 @@ pipeline {
     }
 
     environment {
-        SCANNER_HOME = tool 'sonar-scanner'
+        SCANNER_HOME=tool 'sonar-scanner'
+        APP_NAME = "kaiburr"
+        DOCKER_USER = "aasaithambi5"
+        DOCKER_PASS = 'docker'
+        IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
+        IMAGE_TAG = "${APP_NAME}-${BUILD_NUMBER}"
     }
 
     stages {
@@ -52,30 +57,34 @@ pipeline {
             }
         }
 
-        stage("Docker Build & Push"){
-            steps{
-                script{
-                   withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){ 
-                       sh "docker build -t kaiburr ."
-                       sh "docker tag kaiburr aasaithambi5/kaiburr:latest "
-                       sh "docker push aasaithambi5/kaiburr:latest "
-                       sh "docker push aasaithambi5/kaiburr:${BUILD_NUMBER} "
+        stage("Build & Push Docker Image") {
+            steps {
+                script {
+                    docker.withRegistry('',DOCKER_PASS) {
+                    docker_image = docker.build "${IMAGE_NAME}"
+                    }
+
+                    docker.withRegistry('',DOCKER_PASS) {
+                    docker_image.push("${IMAGE_TAG}")
+                    docker_image.push('latest')
                     }
                 }
             }
         }
 
-        stage("TRIVY IMAGE SCAN"){
-            steps{
-                sh "trivy image aasaithambi5/kaiburr:latest > trivy.txt" 
-            }
+        stage("Trivy Scan") {
+            steps {
+                script {
+	                sh ('docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image aasaithambi5/kaiburr:latest --no-progress --scanners vuln  --exit-code 0 --severity HIGH,CRITICAL --format table > trivyimage.txt')
+               }
+           }
         }
 
         stage ('Cleanup Artifacts') {
-            steps {
-                script {
-                    sh "docker rmi aasaithambi5/kaiburr:latest "
-                    sh "docker rmi aasaithambi5/kaiburr:${BUILD_NUMBER} "
+             steps {
+                 script {
+                    sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
+                    sh "docker rmi ${IMAGE_NAME}:latest"
                 }
             }
         }
