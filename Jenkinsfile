@@ -88,6 +88,24 @@ pipeline {
                 }
             }
         }
+
+        stage('Commit & Push Manifest') {
+            steps {
+                script {
+                    git branch: 'master', credentialsId: 'github', url: 'https://github.com/AASAITHAMBI57/kaiburr_CD.git'
+                    sh "git config user.name 'AASAITHAMBI57'"
+                    sh "git config user.email 'aasaithambi57@gmail.com'"
+                    sh("sed -i 's/${APP_NAME}.*/${APP_NAME}:${IMAGE_TAG}/g' kustomize-yaml/prod-env/prod-deployment.yaml")
+                    
+                    withCredentials([gitUsernamePassword(credentialsId: 'github', gitToolName: 'Default')]) {
+                        sh 'git fetch origin'
+                        sh 'git add -u'
+                        sh "git commit -m 'Update deployment image to ${IMAGE_TAG}'"
+                        sh 'git push origin master'
+                    }
+                }
+            }
+        }
     }
     post {
      always {
