@@ -102,7 +102,7 @@ pipeline {
                         sh 'git fetch origin'
                         sh 'git add -u'
                         sh "git commit -m 'Update deployment image to ${IMAGE_TAG}'"
-                        sh 'git push origin master'
+                        sh 'git push origin dev'
                     }
                 }
             }
