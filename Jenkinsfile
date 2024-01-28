@@ -8,8 +8,8 @@ pipeline {
 
     environment {
         SCANNER_HOME=tool 'sonar-scanner'
-        APP_NAME = "kaiburr"
-        RELEASE = "1.0.0"
+        APP_NAME = "dev-kaiburr"
+        RELEASE = "2.2.0"
         DOCKER_USER = "aasaithambi5"
         DOCKER_PASS = 'docker'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
@@ -96,7 +96,7 @@ pipeline {
                     git branch: 'master', credentialsId: 'github', url: 'https://github.com/AASAITHAMBI57/kaiburr_CD.git'
                     sh "git config user.name 'AASAITHAMBI57'"
                     sh "git config user.email 'aasaithambi57@gmail.com'"
-                    sh("sed -i 's/${APP_NAME}.*/${APP_NAME}:${IMAGE_TAG}/g' kustomize-yaml/prod-env/prod-deployment.yaml")
+                    sh("sed -i 's/${APP_NAME}.*/${APP_NAME}:${IMAGE_TAG}/g' kustomize-yaml/dev-env/dev-deployment.yaml")
                     
                     withCredentials([gitUsernamePassword(credentialsId: 'github', gitToolName: 'Default')]) {
                         sh 'git fetch origin'
