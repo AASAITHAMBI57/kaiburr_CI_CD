@@ -9,7 +9,7 @@ pipeline {
     environment {
         SCANNER_HOME=tool 'sonar-scanner'
         APP_NAME = "kaiburr"
-        RELEASE = "1.0.0"
+        RELEASE = "2.0.0"
         DOCKER_USER = "aasaithambi5"
         DOCKER_PASS = 'docker'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
