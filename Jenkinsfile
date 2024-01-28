@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         SCANNER_HOME=tool 'sonar-scanner'
-        APP_NAME = "prod-kaiburr"
+        APP_NAME = "kaiburr"
         RELEASE = "1.0.0"
         DOCKER_USER = "aasaithambi5"
         DOCKER_PASS = 'docker'
@@ -76,7 +76,7 @@ pipeline {
         stage("Trivy Scan") {
             steps {
                 script {
-	                sh ('docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image aasaithambi5/prod-kaiburr:latest --no-progress --scanners vuln  --exit-code 0 --severity HIGH,CRITICAL --format table > trivyimage.txt')
+	                sh ('docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image aasaithambi5/kaiburr:latest --no-progress --scanners vuln  --exit-code 0 --severity HIGH,CRITICAL --format table > trivyimage.txt')
                }
            }
         }
